@@ -47,6 +47,8 @@ int main(void)
 	// Init UART, registers with SDK printf
 	uart_init(&uart, UART_INST0);
 
+	am_hal_interrupt_master_enable();
+
 	// Print the banner.
 	am_util_stdio_terminal_clear();
 	am_util_stdio_printf("Hello World!\r\n\r\n");

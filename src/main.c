@@ -15,7 +15,7 @@
 //*****************************************************************************
 #define PDM_FFT_SIZE                4096
 #define PDM_FFT_BYTES               (PDM_FFT_SIZE * 2)
-#define PRINT_PDM_DATA              0
+#define PRINT_PDM_DATA              1
 #define PRINT_FFT_DATA              0
 
 //*****************************************************************************
@@ -234,6 +234,7 @@ pcm_fft_print(void)
         if (PRINT_PDM_DATA)
         {
             am_util_stdio_printf("%d\r\n", pi16PDMData[i]);
+			am_util_delay_ms(10);		// stop uart from breaking
         }
 
         g_fPDMTimeDomain[2 * i] = pi16PDMData[i] / 1.0;

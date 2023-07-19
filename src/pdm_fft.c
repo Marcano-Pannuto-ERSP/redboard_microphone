@@ -1,12 +1,63 @@
+//*****************************************************************************
+//
+//! @file pdm_fft.c
+//!
+//! @brief An example to show basic PDM operation.
+//!
+//! Purpose: This example enables the PDM interface to record audio signals from an
+//! external microphone. The required pin connections are:
+//!
+//! Printing takes place over the ITM at 1M Baud.
+//!
+//! GPIO 11 - PDM DATA
+//! GPIO 12 - PDM CLK
+//
+//*****************************************************************************
+
+//*****************************************************************************
+//
+// Copyright (c) 2021, Ambiq Micro, Inc.
+// All rights reserved.
+//
+// Redistribution and use in source and binary forms, with or without
+// modification, are permitted provided that the following conditions are met:
+//
+// 1. Redistributions of source code must retain the above copyright notice,
+// this list of conditions and the following disclaimer.
+//
+// 2. Redistributions in binary form must reproduce the above copyright
+// notice, this list of conditions and the following disclaimer in the
+// documentation and/or other materials provided with the distribution.
+//
+// 3. Neither the name of the copyright holder nor the names of its
+// contributors may be used to endorse or promote products derived from this
+// software without specific prior written permission.
+//
+// Third party software included in this distribution is subject to the
+// additional license terms as defined in the /docs/licenses directory.
+//
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+// AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+// ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+// LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+// CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+// SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+// INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+// CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+// ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+// POSSIBILITY OF SUCH DAMAGE.
+//
+// This is part of revision release_sdk_3_0_0-742e5ac27c of the AmbiqSuite Development Package.
+//
+//*****************************************************************************
+
 #define ARM_MATH_CM4
 #include <arm_math.h>
 
 #include "am_mcu_apollo.h"
 #include "am_bsp.h"
 #include "am_util.h"
-
-// asimple imports
-#include <uart.h>
 
 //*****************************************************************************
 //
@@ -76,16 +127,16 @@ pdm_init(void)
     //
     // Configure the necessary pins.
     //
-    // am_hal_gpio_pincfg_t sPinCfg = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+    am_hal_gpio_pincfg_t sPinCfg = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
-    // sPinCfg.uFuncSel = AM_BSP_GPIO_MIC_DATA;
-    am_hal_gpio_pinconfig(AM_BSP_GPIO_MIC_DATA, g_AM_BSP_GPIO_MIC_DATA);
+    sPinCfg.uFuncSel = AM_HAL_PIN_11_PDMDATA;
+    am_hal_gpio_pinconfig(11, sPinCfg);
 
-    // sPinCfg.uFuncSel = AM_BSP_GPIO_MIC_CLK;
-    am_hal_gpio_pinconfig(AM_BSP_GPIO_MIC_CLK, g_AM_BSP_GPIO_MIC_CLK);		//pass ptr to g_AM_.... instead of spincfg
+    sPinCfg.uFuncSel = AM_HAL_PIN_12_PDMCLK;
+    am_hal_gpio_pinconfig(12, sPinCfg);
 
-    // am_hal_gpio_state_write(14, AM_HAL_GPIO_OUTPUT_CLEAR);
-    // am_hal_gpio_pinconfig(14, g_AM_HAL_GPIO_OUTPUT);
+    am_hal_gpio_state_write(14, AM_HAL_GPIO_OUTPUT_CLEAR);
+    am_hal_gpio_pinconfig(14, g_AM_HAL_GPIO_OUTPUT);
 
     //
     // Configure and enable PDM interrupts (set up to trigger on DMA
@@ -278,30 +329,22 @@ pcm_fft_print(void)
     am_util_stdio_printf("Loudest frequency: %d\n", ui32LoudestFrequency);
 }
 
-
-// MAIN
-
-static struct uart uart;
-
+//*****************************************************************************
+//
+// Main
+//
+//*****************************************************************************
 int
 main(void)
 {
-	// Initialization copied from redboard_sensors
-	am_hal_clkgen_control(AM_HAL_CLKGEN_CONTROL_SYSCLK_MAX, 0);
-	am_hal_cachectrl_config(&am_hal_cachectrl_defaults);
-	am_hal_cachectrl_enable();
-	am_bsp_low_power_init();
-	am_hal_sysctrl_fpu_enable();
-	am_hal_sysctrl_fpu_stacking_enable(true);
-
-	// Init UART, registers with SDK printf
-	uart_init(&uart, UART_INST0);
-
-	am_hal_interrupt_master_enable();
-
-	am_util_stdio_printf("Hello World!\r\n");
-
-	/*
+    //
+    // Perform the standard initialzation for clocks, cache settings, and
+    // board-level low-power operation.
+    //
+    am_hal_clkgen_control(AM_HAL_CLKGEN_CONTROL_SYSCLK_MAX, 0);
+    am_hal_cachectrl_config(&am_hal_cachectrl_defaults);
+    am_hal_cachectrl_enable();
+    //am_bsp_low_power_init();
 
     //
     // Initialize the printf interface for ITM output
@@ -351,5 +394,4 @@ main(void)
 
         am_hal_interrupt_master_enable();
     }
-	*/
 }

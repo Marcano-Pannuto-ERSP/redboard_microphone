@@ -149,12 +149,12 @@ pdm_config_print(void)
 
     fFrequencyUnits = (float) g_ui32SampleFreq / (float) PDM_FFT_SIZE;
 
-    am_util_stdio_printf("Settings:\n");
-    am_util_stdio_printf("PDM Clock (Hz):         %12d\n", ui32PDMClk);
-    am_util_stdio_printf("Decimation Rate:        %12d\n", g_sPdmConfig.ui32DecimationRate);
-    am_util_stdio_printf("Effective Sample Freq.: %12d\n", g_ui32SampleFreq);
-    am_util_stdio_printf("FFT Length:             %12d\n\n", PDM_FFT_SIZE);
-    am_util_stdio_printf("FFT Resolution: %15.3f Hz\n", fFrequencyUnits);
+    am_util_stdio_printf("Settings:\r\n");
+    am_util_stdio_printf("PDM Clock (Hz):         %12d\r\n", ui32PDMClk);
+    am_util_stdio_printf("Decimation Rate:        %12d\r\n", g_sPdmConfig.ui32DecimationRate);
+    am_util_stdio_printf("Effective Sample Freq.: %12d\r\n", g_ui32SampleFreq);
+    am_util_stdio_printf("FFT Length:             %12d\r\n\n", PDM_FFT_SIZE);
+    am_util_stdio_printf("FFT Resolution: %15.3f Hz\r\n", fFrequencyUnits);
 }
 
 //*****************************************************************************
@@ -233,7 +233,7 @@ pcm_fft_print(void)
     {
         if (PRINT_PDM_DATA)
         {
-            am_util_stdio_printf("%d\n", pi16PDMData[i]);
+            am_util_stdio_printf("%d\r\n", pi16PDMData[i]);
         }
 
         g_fPDMTimeDomain[2 * i] = pi16PDMData[i] / 1.0;
@@ -242,8 +242,9 @@ pcm_fft_print(void)
 
     if (PRINT_PDM_DATA)
     {
-        am_util_stdio_printf("END\n");
+        am_util_stdio_printf("END\r\n");
     }
+	/*
 
     //
     // Perform the FFT.
@@ -257,10 +258,10 @@ pcm_fft_print(void)
     {
         for (uint32_t i = 0; i < PDM_FFT_SIZE / 2; i++)
         {
-            am_util_stdio_printf("%f\n", g_fPDMMagnitudes[i]);
+            am_util_stdio_printf("%f\r\n", g_fPDMMagnitudes[i]);
         }
 
-        am_util_stdio_printf("END\n");
+        am_util_stdio_printf("END\r\n");
     }
 
     //
@@ -272,10 +273,11 @@ pcm_fft_print(void)
 
     if (PRINT_FFT_DATA)
     {
-        am_util_stdio_printf("Loudest frequency bin: %d\n", ui32MaxIndex);
+        am_util_stdio_printf("Loudest frequency bin: %d\r\n", ui32MaxIndex);
     }
 //    am_util_stdio_printf("Loudest frequency: %d         \r", ui32LoudestFrequency);
-    am_util_stdio_printf("Loudest frequency: %d\n", ui32LoudestFrequency);
+    am_util_stdio_printf("Loudest frequency: %d\r\n", ui32LoudestFrequency);
+	*/
 }
 
 
@@ -301,18 +303,18 @@ main(void)
 
 	am_util_stdio_printf("Hello World!\r\n");
 
-	/*
+	
 
     //
     // Initialize the printf interface for ITM output
-    //
-    am_bsp_itm_printf_enable();
+    // do we need this??
+    // am_bsp_itm_printf_enable();
 
     //
     // Print the banner.
     //
     am_util_stdio_terminal_clear();
-    am_util_stdio_printf("PDM FFT example.\n\n");
+    am_util_stdio_printf("PDM FFT example.\r\n");
 
     //
     // Turn on the PDM, set it up for our chosen recording settings, and start
@@ -351,5 +353,5 @@ main(void)
 
         am_hal_interrupt_master_enable();
     }
-	*/
+	
 }

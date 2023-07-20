@@ -20,11 +20,11 @@ ser = serial.Serial('/dev/ttyUSB0', baudrate=115200)  # open serial port
 #     print(hex(byte[0]))
 #     file.write(byte)
 
-byteArr = ser.read(2000)
-# file.write(byteArr)
-for i in byteArr:
-    print(hex(i))
-    file.write(str(i))
+byteArr = ser.read(4096 * 2)
+file.write(byteArr)
+# for i in byteArr:
+#     print(hex(i))
+#     file.write(str(i))
 
 ser.close()
 file.close()

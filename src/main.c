@@ -229,12 +229,14 @@ pcm_fft_print(struct uart *uart)
     // Convert the PDM samples to floats, and arrange them in the format
     // required by the FFT function.
     //
-    uint16_t data[PDM_FFT_SIZE];
     for (uint32_t i = 0; i < PDM_FFT_SIZE; i++)
     {
         if (PRINT_PDM_DATA)
         {
-            data[i] = pi16PDMData[i];
+            uint16_t data = pi16PDMData[i];
+            for (size_t sent = 0; sent != 2;){
+                sent += uart_write(uart, (uint8_t *)&data + sent, 2 - sent);
+            }
             // uint8_t part1 = pi16PDMData[i] >> 8;
             // uint8_t part2 = pi16PDMData[i] & 0xFF;
             // data[2 * i] = part1;
@@ -246,10 +248,10 @@ pcm_fft_print(struct uart *uart)
         }
     }
 
-    size_t sent = 0;
-    while(sent != (PDM_FFT_SIZE * 2)){
-        sent += uart_write(uart, (uint8_t*)data + sent, (PDM_FFT_SIZE * 2) - sent);
-    }
+    // size_t sent = 0;
+    // while(sent != (PDM_FFT_SIZE * 2)){
+    //     sent += uart_write(uart, (uint8_t*)data + sent, (PDM_FFT_SIZE * 2) - sent);
+    // }
 
     if (PRINT_PDM_DATA)
     {
@@ -290,7 +292,7 @@ main(void)
     //
     // Print the banner.
     //
-    am_util_stdio_terminal_clear();
+    //am_util_stdio_terminal_clear();
     //am_util_stdio_printf("PDM FFT example.\r\n");
 
     //
@@ -309,15 +311,17 @@ main(void)
     //
     while (1)
     {
-        pcm_fft_print(&uart);
+        //pcm_fft_print(&uart);
         am_hal_uart_tx_flush(uart.handle);
         am_hal_interrupt_master_disable();
 
-        if (g_bPDMDataReady)
+        bool ready = g_bPDMDataReady;
+        am_hal_interrupt_master_enable();
+        if (ready)
         {
             g_bPDMDataReady = false;
 
-            //pcm_fft_print(&uart);
+            pcm_fft_print(&uart);
 
             while (PRINT_PDM_DATA || PRINT_FFT_DATA);
 
@@ -331,8 +335,6 @@ main(void)
         // Go to Deep Sleep.
         //
         am_hal_sysctrl_sleep(AM_HAL_SYSCTRL_SLEEP_DEEP);
-
-        am_hal_interrupt_master_enable();
     }
 	
 }

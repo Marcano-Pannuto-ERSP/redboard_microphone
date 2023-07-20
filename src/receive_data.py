@@ -8,8 +8,7 @@ import serial
 
 # Probably change this later to just keep running until we are done sending data
 BUFF_SIZE = 4096        # Number of 16-bit ints being sent over uart
-NUM_BYTES = BUFF_SIZE * 2   # unnecessary?
-FILENAME = "out"        # File type??
+FILENAME = "out.raw"
 
 file = open(FILENAME, 'w')
 buffer = ""

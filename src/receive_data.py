@@ -13,13 +13,18 @@ FILENAME = "out.raw"
 file = open(FILENAME, 'wb')
 buffer = ""
 
-ser = serial.Serial('/dev/ttyUSB0', baudrate=115300)  # open serial port
+ser = serial.Serial('/dev/ttyUSB0', baudrate=115200)  # open serial port
 
-byteArr = ser.read(160000)
-file.write(byteArr)
-# for i in byteArr:
-#     print(hex(i))
-#     file.write(str(i))
+# for i in range(2000):
+#     byte = ser.read(1)
+#     print(hex(byte[0]))
+#     file.write(byte)
+
+byteArr = ser.read(2000)
+# file.write(byteArr)
+for i in byteArr:
+    print(hex(i))
+    file.write(str(i))
 
 ser.close()
 file.close()

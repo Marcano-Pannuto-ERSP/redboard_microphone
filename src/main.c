@@ -218,7 +218,7 @@ am_pdm0_isr(void)
 //
 //*****************************************************************************
 void
-pcm_fft_print(void)
+pcm_fft_print(struct uart *uart)
 {
     float fMaxValue;
     uint32_t ui32MaxIndex;
@@ -229,17 +229,33 @@ pcm_fft_print(void)
     // Convert the PDM samples to floats, and arrange them in the format
     // required by the FFT function.
     //
+    uint8_t data[PDM_FFT_SIZE * 2];
+    am_util_stdio_printf("%u\r\n", PDM_FFT_SIZE);
+    am_util_stdio_printf("hello there :)\r\n");
     for (uint32_t i = 0; i < PDM_FFT_SIZE; i++)
     {
         if (PRINT_PDM_DATA)
         {
-            am_util_stdio_printf("%d\r\n", pi16PDMData[i]);
-			am_util_delay_ms(10);		// stop uart from breaking
+            //am_util_stdio_printf("%d\r\n", pi16PDMData[i]);
+            uint8_t part1 = pi16PDMData[i] >> 8;
+            uint8_t part2 = pi16PDMData[i] & 0xFF;
+            data[2 * i] = part1;
+            data[(2 * i) + 1] = part2;
+			//am_util_delay_ms(10);		// stop uart from breaking
+        }
+
+        if(i % 100 == 0){
+            am_util_stdio_printf("%u\r\n", i);
+            am_hal_uart_tx_flush(uart->handle);
         }
 
         g_fPDMTimeDomain[2 * i] = pi16PDMData[i] / 1.0;
         g_fPDMTimeDomain[2 * i + 1] = 0.0;
     }
+
+    am_util_stdio_printf("test\r\n");
+    size_t toPrint = uart_write(uart, data, PDM_FFT_SIZE * 2);
+    am_util_stdio_printf("%u\r\n", toPrint);
 
     if (PRINT_PDM_DATA)
     {
@@ -326,18 +342,22 @@ main(void)
     am_hal_pdm_fifo_flush(PDMHandle);
     pdm_data_get();
 
+    // pcm_fft_print(&uart);
+    
     //
     // Loop forever while sleeping.
     //
     while (1)
     {
+        pcm_fft_print(&uart);
+        am_hal_uart_tx_flush(uart.handle);
         am_hal_interrupt_master_disable();
 
         if (g_bPDMDataReady)
         {
             g_bPDMDataReady = false;
 
-            pcm_fft_print();
+            //pcm_fft_print(&uart);
 
             while (PRINT_PDM_DATA || PRINT_FFT_DATA);
 

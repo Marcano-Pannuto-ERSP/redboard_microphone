@@ -13,10 +13,8 @@
 // Example parameters.
 //
 //*****************************************************************************
-#define PDM_FFT_SIZE                4096
-#define PDM_FFT_BYTES               (PDM_FFT_SIZE * 2)
-#define PRINT_PDM_DATA              1
-#define PRINT_FFT_DATA              0
+#define PDM_SIZE                4096
+#define PDM_BYTES               (PDM_SIZE * 2)
 
 //*****************************************************************************
 //
@@ -24,12 +22,9 @@
 //
 //*****************************************************************************
 volatile bool g_bPDMDataReady = false;
-uint32_t g_ui32PDMDataBuffer1[PDM_FFT_SIZE];
-uint32_t g_ui32PDMDataBuffer2[PDM_FFT_SIZE];
-float g_fPDMTimeDomain[PDM_FFT_SIZE * 2];
-float g_fPDMFrequencyDomain[PDM_FFT_SIZE * 2];
-float g_fPDMMagnitudes[PDM_FFT_SIZE * 2];
-uint32_t g_ui32SampleFreq;
+uint32_t g_ui32PDMDataBuffer1[PDM_SIZE];
+uint32_t g_ui32PDMDataBuffer2[PDM_SIZE];
+// uint32_t g_ui32SampleFreq;
 
 //*****************************************************************************
 //
@@ -79,8 +74,7 @@ pdm_init(void)
     //
 
     am_hal_gpio_pinconfig(AM_BSP_GPIO_MIC_DATA, g_AM_BSP_GPIO_MIC_DATA);
-
-    am_hal_gpio_pinconfig(AM_BSP_GPIO_MIC_CLK, g_AM_BSP_GPIO_MIC_CLK);		//pass ptr to g_AM_.... instead of spincfg
+    am_hal_gpio_pinconfig(AM_BSP_GPIO_MIC_CLK, g_AM_BSP_GPIO_MIC_CLK);
 
     //
     // Configure and enable PDM interrupts (set up to trigger on DMA
@@ -149,13 +143,13 @@ pdm_config_print(void)
     g_ui32SampleFreq = (ui32PDMClk /
                         (ui32MClkDiv * 2 * g_sPdmConfig.ui32DecimationRate));
 
-    fFrequencyUnits = (float) g_ui32SampleFreq / (float) PDM_FFT_SIZE;
+    fFrequencyUnits = (float) g_ui32SampleFreq / (float) PDM_SIZE;
 
     am_util_stdio_printf("Settings:\r\n");
     am_util_stdio_printf("PDM Clock (Hz):         %12d\r\n", ui32PDMClk);
     am_util_stdio_printf("Decimation Rate:        %12d\r\n", g_sPdmConfig.ui32DecimationRate);
     am_util_stdio_printf("Effective Sample Freq.: %12d\r\n", g_ui32SampleFreq);
-    am_util_stdio_printf("FFT Length:             %12d\r\n\n", PDM_FFT_SIZE);
+    am_util_stdio_printf("FFT Length:             %12d\r\n\n", PDM_SIZE);
     am_util_stdio_printf("FFT Resolution: %15.3f Hz\r\n", fFrequencyUnits);
 }
 
@@ -172,7 +166,7 @@ pdm_data_get(uint32_t* g_ui32PDMDataBuffer)
     //
     am_hal_pdm_transfer_t sTransfer;
     sTransfer.ui32TargetAddr = (uint32_t ) g_ui32PDMDataBuffer;
-    sTransfer.ui32TotalCount = PDM_FFT_BYTES;
+    sTransfer.ui32TotalCount = PDM_BYTES;
 
     //
     // Start the data transfer.
@@ -196,14 +190,6 @@ am_pdm0_isr(void)
     am_hal_pdm_interrupt_status_get(PDMHandle, &ui32Status, true);
     am_hal_pdm_interrupt_clear(PDMHandle, ui32Status);
 
-    //
-    // Once our DMA transaction completes, we will disable the PDM and send a
-    // flag back down to the main routine. Disabling the PDM is only necessary
-    // because this example only implemented a single buffer for storing FFT
-    // data. More complex programs could use a system of multiple buffers to
-    // allow the CPU to run the FFT in one buffer while the DMA pulls PCM data
-    // into another buffer.
-    //
     if (ui32Status & AM_HAL_PDM_INT_DCMP)
     {
         g_bPDMDataReady = true;
@@ -216,7 +202,7 @@ am_pdm0_isr(void)
 //
 //*****************************************************************************
 void
-pcm_fft_print(struct uart *uart, uint32_t* g_ui32PDMDataBuffer)
+pcm_print(struct uart *uart, uint32_t* g_ui32PDMDataBuffer)
 {
     float fMaxValue;
     uint32_t ui32MaxIndex;
@@ -224,17 +210,13 @@ pcm_fft_print(struct uart *uart, uint32_t* g_ui32PDMDataBuffer)
     uint32_t ui32LoudestFrequency;
 
     //
-    // Convert the PDM samples to floats, and arrange them in the format
-    // required by the FFT function.
+    // Convert the PDM samples to floats.
     //
-    for (uint32_t i = 0; i < PDM_FFT_SIZE; i++)
+    for (uint32_t i = 0; i < PDM_SIZE; i++)
     {
-        if (PRINT_PDM_DATA)
-        {
-            uint16_t data = pi16PDMData[i];
-            for (size_t sent = 0; sent != 2;){
-                sent += uart_write(uart, (uint8_t *)&data + sent, 2 - sent);
-            }
+        uint16_t data = pi16PDMData[i];
+        for (size_t sent = 0; sent != 2;){
+            sent += uart_write(uart, (uint8_t *)&data + sent, 2 - sent);
         }
     }
 }
@@ -287,12 +269,12 @@ main(void)
 
             if(toggle){
                 pdm_data_get(g_ui32PDMDataBuffer2);
-                pcm_fft_print(&uart, g_ui32PDMDataBuffer1);
+                pcm_print(&uart, g_ui32PDMDataBuffer1);
                 toggle = false;
             }
             else{
                 pdm_data_get(g_ui32PDMDataBuffer1);
-                pcm_fft_print(&uart, g_ui32PDMDataBuffer2);
+                pcm_print(&uart, g_ui32PDMDataBuffer2);
                 toggle = true;
             }
         }

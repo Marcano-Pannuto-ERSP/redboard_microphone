@@ -14,10 +14,13 @@ file = open(FILENAME, 'wb')
 
 ser = serial.Serial('/dev/ttyUSB0', baudrate=115200)  # open serial port
 
-for i in range(BUFF_SIZE * 2):
-    byte = ser.read(1)
-    print(hex(byte[0]))
-    file.write(byte)
+NUM_CHUNKS = 30
+for j in range(NUM_CHUNKS):     # keep recording data
+    for i in range(BUFF_SIZE * 2):
+        byte = ser.read(1)
+        # print(hex(byte[0]))
+        file.write(byte)
+    print(f"{j} chunks / {100*j/NUM_CHUNKS}%")
 
 # byteArr = ser.read(BUFF_SIZE * 2)
 # file.write(byteArr)

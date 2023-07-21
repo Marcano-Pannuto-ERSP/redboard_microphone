@@ -15,6 +15,7 @@
 // MAIN
 
 static struct uart uart;
+static struct pdm pdm;
 
 int
 main(void)
@@ -37,9 +38,9 @@ main(void)
     // Turn on the PDM, set it up for our chosen recording settings, and start
     // the first DMA transaction.
     //
-    pdm_init();
-    am_hal_pdm_fifo_flush(PDMHandle);
-    pdm_data_get(g_ui32PDMDataBuffer1);
+    pdm_init(&pdm);
+    am_hal_pdm_fifo_flush(pdm.PDMHandle);
+    pdm_data_get(&pdm, pdm.g_ui32PDMDataBuffer1);
     
     //
     // Loop forever while sleeping.
@@ -50,21 +51,21 @@ main(void)
         am_hal_uart_tx_flush(uart.handle);
 
         am_hal_interrupt_master_disable();
-        bool ready = g_bPDMDataReady;
+        bool ready = isPDMDataReady();
         am_hal_interrupt_master_enable();
 
         if (ready)
         {
-            g_bPDMDataReady = false;
+            ready = false;
 
             if(toggle){
-                pdm_data_get(g_ui32PDMDataBuffer2);
-                pcm_print(&uart, g_ui32PDMDataBuffer1);
+                pdm_data_get(&pdm, pdm.g_ui32PDMDataBuffer2);
+                pcm_print(&uart, pdm.g_ui32PDMDataBuffer1);
                 toggle = false;
             }
             else{
-                pdm_data_get(g_ui32PDMDataBuffer1);
-                pcm_print(&uart, g_ui32PDMDataBuffer2);
+                pdm_data_get(&pdm, pdm.g_ui32PDMDataBuffer1);
+                pcm_print(&uart, pdm.g_ui32PDMDataBuffer2);
                 toggle = true;
             }
         }

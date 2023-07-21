@@ -76,16 +76,10 @@ pdm_init(void)
     //
     // Configure the necessary pins.
     //
-    // am_hal_gpio_pincfg_t sPinCfg = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
-    // sPinCfg.uFuncSel = AM_BSP_GPIO_MIC_DATA;
     am_hal_gpio_pinconfig(AM_BSP_GPIO_MIC_DATA, g_AM_BSP_GPIO_MIC_DATA);
 
-    // sPinCfg.uFuncSel = AM_BSP_GPIO_MIC_CLK;
     am_hal_gpio_pinconfig(AM_BSP_GPIO_MIC_CLK, g_AM_BSP_GPIO_MIC_CLK);		//pass ptr to g_AM_.... instead of spincfg
-
-    // am_hal_gpio_state_write(14, AM_HAL_GPIO_OUTPUT_CLEAR);
-    // am_hal_gpio_pinconfig(14, g_AM_HAL_GPIO_OUTPUT);
 
     //
     // Configure and enable PDM interrupts (set up to trigger on DMA
@@ -237,10 +231,6 @@ pcm_fft_print(struct uart *uart)
             for (size_t sent = 0; sent != 2;){
                 sent += uart_write(uart, (uint8_t *)&data + sent, 2 - sent);
             }
-            // uint8_t part1 = pi16PDMData[i] >> 8;
-            // uint8_t part2 = pi16PDMData[i] & 0xFF;
-            // data[2 * i] = part1;
-            // data[(2 * i) + 1] = part2;
         }
 
         if(i % 100 == 0){
@@ -252,11 +242,6 @@ pcm_fft_print(struct uart *uart)
     // while(sent != (PDM_FFT_SIZE * 2)){
     //     sent += uart_write(uart, (uint8_t*)data + sent, (PDM_FFT_SIZE * 2) - sent);
     // }
-
-    if (PRINT_PDM_DATA)
-    {
-        //am_util_stdio_printf("END\r\n");
-    }
 }
 
 
@@ -278,11 +263,7 @@ main(void)
 	// Init UART, registers with SDK printf
 	uart_init(&uart, UART_INST0);
 
-	am_hal_interrupt_master_enable();
-
-	//am_util_stdio_printf("Hello World!\r\n");
-
-	
+	am_hal_interrupt_master_enable();	
 
     //
     // Initialize the printf interface for ITM output
@@ -290,40 +271,29 @@ main(void)
     // am_bsp_itm_printf_enable();
 
     //
-    // Print the banner.
-    //
-    //am_util_stdio_terminal_clear();
-    //am_util_stdio_printf("PDM FFT example.\r\n");
-
-    //
     // Turn on the PDM, set it up for our chosen recording settings, and start
     // the first DMA transaction.
     //
     pdm_init();
-    //pdm_config_print();
     am_hal_pdm_fifo_flush(PDMHandle);
     pdm_data_get();
-
-    // pcm_fft_print(&uart);
     
     //
     // Loop forever while sleeping.
     //
     while (1)
     {
-        //pcm_fft_print(&uart);
         am_hal_uart_tx_flush(uart.handle);
-        am_hal_interrupt_master_disable();
 
+        am_hal_interrupt_master_disable();
         bool ready = g_bPDMDataReady;
         am_hal_interrupt_master_enable();
+
         if (ready)
         {
             g_bPDMDataReady = false;
 
             pcm_fft_print(&uart);
-
-            while (PRINT_PDM_DATA || PRINT_FFT_DATA);
 
             //
             // Start converting the next set of PCM samples.
@@ -336,5 +306,4 @@ main(void)
         //
         am_hal_sysctrl_sleep(AM_HAL_SYSCTRL_SLEEP_DEEP);
     }
-	
 }

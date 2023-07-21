@@ -1,3 +1,8 @@
+// SPDX-License-Identifier: Apache-2.0
+// Copyright: Gabriel Marcano, 2023
+// Copyright: Kristin Ebuengan, 2023
+// Copyright: Melody Gill, 2023
+
 // #include <iostream>
 // #include <fstream>
 #include <stdint.h>

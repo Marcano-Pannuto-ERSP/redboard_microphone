@@ -1,3 +1,8 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright: Gabriel Marcano, 2023
+# Copyright: Kristin Ebuengan, 2023
+# Copyright: Melody Gill, 2023
+
 """
 Script to run on the server at the same time that main.c is running
 This file will receive the bytes over uart and decode them back into numbers

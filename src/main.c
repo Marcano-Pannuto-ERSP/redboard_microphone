@@ -24,7 +24,7 @@
 volatile bool g_bPDMDataReady = false;
 uint32_t g_ui32PDMDataBuffer1[PDM_SIZE];
 uint32_t g_ui32PDMDataBuffer2[PDM_SIZE];
-// uint32_t g_ui32SampleFreq;
+uint32_t g_ui32SampleFreq;
 
 //*****************************************************************************
 //

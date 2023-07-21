@@ -1,7 +1,9 @@
-# Example application using a LoRa module, using `asimple`
+# Redboard Artemis ATP microphone application, using `asimple`
 
 This is an example application using the asimple and forked AmbiqSuiteSDK
-projects to read time from the RTC and read/write/erase from the flash chip.
+projects to record data from the redboard's microphone. After the Redboard
+is flashed, use the receive_data.py script to record the data from the
+redboard that is being sent over UART.
 
 ## Dependencies
  - https://github.com/gemarcano/AmbiqSuiteSDK

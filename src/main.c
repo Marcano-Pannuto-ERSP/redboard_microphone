@@ -24,7 +24,8 @@
 //
 //*****************************************************************************
 volatile bool g_bPDMDataReady = false;
-uint32_t g_ui32PDMDataBuffer[PDM_FFT_SIZE];
+uint32_t g_ui32PDMDataBuffer1[PDM_FFT_SIZE];
+uint32_t g_ui32PDMDataBuffer2[PDM_FFT_SIZE];
 float g_fPDMTimeDomain[PDM_FFT_SIZE * 2];
 float g_fPDMFrequencyDomain[PDM_FFT_SIZE * 2];
 float g_fPDMMagnitudes[PDM_FFT_SIZE * 2];
@@ -91,6 +92,13 @@ pdm_init(void)
                                             | AM_HAL_PDM_INT_OVF));
 
     NVIC_EnableIRQ(PDM_IRQn);
+
+    //
+    // Start the data transfer
+    //
+    am_hal_pdm_enable(PDMHandle);
+    am_util_delay_ms(100);
+    am_hal_pdm_fifo_flush(PDMHandle);
 }
 
 //*****************************************************************************
@@ -157,7 +165,7 @@ pdm_config_print(void)
 //
 //*****************************************************************************
 void
-pdm_data_get(void)
+pdm_data_get(uint32_t* g_ui32PDMDataBuffer)
 {
     //
     // Configure DMA and target address.
@@ -169,9 +177,6 @@ pdm_data_get(void)
     //
     // Start the data transfer.
     //
-    am_hal_pdm_enable(PDMHandle);
-    am_util_delay_ms(100);
-    am_hal_pdm_fifo_flush(PDMHandle);
     am_hal_pdm_dma_start(PDMHandle, &sTransfer);
 }
 
@@ -201,7 +206,6 @@ am_pdm0_isr(void)
     //
     if (ui32Status & AM_HAL_PDM_INT_DCMP)
     {
-        am_hal_pdm_disable(PDMHandle);
         g_bPDMDataReady = true;
     }
 }
@@ -212,7 +216,7 @@ am_pdm0_isr(void)
 //
 //*****************************************************************************
 void
-pcm_fft_print(struct uart *uart)
+pcm_fft_print(struct uart *uart, uint32_t* g_ui32PDMDataBuffer)
 {
     float fMaxValue;
     uint32_t ui32MaxIndex;
@@ -232,16 +236,7 @@ pcm_fft_print(struct uart *uart)
                 sent += uart_write(uart, (uint8_t *)&data + sent, 2 - sent);
             }
         }
-
-        if(i % 100 == 0){
-            am_hal_uart_tx_flush(uart->handle);
-        }
     }
-
-    // size_t sent = 0;
-    // while(sent != (PDM_FFT_SIZE * 2)){
-    //     sent += uart_write(uart, (uint8_t*)data + sent, (PDM_FFT_SIZE * 2) - sent);
-    // }
 }
 
 
@@ -264,12 +259,7 @@ main(void)
 	uart_init(&uart, UART_INST0);
     uart_set_baud_rate(&uart, 921600);
 
-	am_hal_interrupt_master_enable();	
-
-    //
-    // Initialize the printf interface for ITM output
-    // do we need this??
-    // am_bsp_itm_printf_enable();
+	am_hal_interrupt_master_enable();
 
     //
     // Turn on the PDM, set it up for our chosen recording settings, and start
@@ -277,11 +267,12 @@ main(void)
     //
     pdm_init();
     am_hal_pdm_fifo_flush(PDMHandle);
-    pdm_data_get();
+    pdm_data_get(g_ui32PDMDataBuffer1);
     
     //
     // Loop forever while sleeping.
     //
+    bool toggle = true;
     while (1)
     {
         am_hal_uart_tx_flush(uart.handle);
@@ -294,12 +285,16 @@ main(void)
         {
             g_bPDMDataReady = false;
 
-            pcm_fft_print(&uart);
-
-            //
-            // Start converting the next set of PCM samples.
-            //
-            pdm_data_get();
+            if(toggle){
+                pdm_data_get(g_ui32PDMDataBuffer2);
+                pcm_fft_print(&uart, g_ui32PDMDataBuffer1);
+                toggle = false;
+            }
+            else{
+                pdm_data_get(g_ui32PDMDataBuffer1);
+                pcm_fft_print(&uart, g_ui32PDMDataBuffer2);
+                toggle = true;
+            }
         }
 
         //

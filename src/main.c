@@ -32,8 +32,6 @@ main(void)
 	uart_init(&uart, UART_INST0);
     uart_set_baud_rate(&uart, 921600);
 
-	am_hal_interrupt_master_enable();
-
     //
     // Turn on the PDM, set it up for our chosen recording settings, and start
     // the first DMA transaction.
@@ -41,6 +39,8 @@ main(void)
     pdm_init(&pdm);
     am_hal_pdm_fifo_flush(pdm.PDMHandle);
     pdm_data_get(&pdm, pdm.g_ui32PDMDataBuffer1);
+
+    am_hal_interrupt_master_enable();
     
     //
     // Loop forever while sleeping.

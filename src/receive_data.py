@@ -12,7 +12,7 @@ FILENAME = "out.raw"
 
 file = open(FILENAME, 'wb')
 
-ser = serial.Serial('/dev/ttyUSB0', baudrate=115200)  # open serial port
+ser = serial.Serial('/dev/ttyUSB0', baudrate=921600)  # open serial port
 
 NUM_CHUNKS = 30
 for j in range(NUM_CHUNKS):     # keep recording data

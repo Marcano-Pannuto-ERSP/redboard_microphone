@@ -262,6 +262,7 @@ main(void)
 
 	// Init UART, registers with SDK printf
 	uart_init(&uart, UART_INST0);
+    uart_set_baud_rate(&uart, 921600);
 
 	am_hal_interrupt_master_enable();	
 

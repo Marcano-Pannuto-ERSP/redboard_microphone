@@ -40,12 +40,12 @@ void *PDMHandle;
 am_hal_pdm_config_t g_sPdmConfig =
 {
     .eClkDivider = AM_HAL_PDM_MCLKDIV_1,
-    .eLeftGain = AM_HAL_PDM_GAIN_0DB,
-    .eRightGain = AM_HAL_PDM_GAIN_0DB,
-    .ui32DecimationRate = 64,
+    .eLeftGain = AM_HAL_PDM_GAIN_P405DB,
+    .eRightGain = AM_HAL_PDM_GAIN_P405DB,
+    .ui32DecimationRate = 48,
     .bHighPassEnable = 0,
     .ui32HighPassCutoff = 0xB,
-    .ePDMClkSpeed = AM_HAL_PDM_CLK_6MHZ,
+    .ePDMClkSpeed = AM_HAL_PDM_CLK_750KHZ,
     .bInvertI2SBCLK = 0,
     .ePDMClkSource = AM_HAL_PDM_INTERNAL_CLK,
     .bPDMSampleDelay = 0,

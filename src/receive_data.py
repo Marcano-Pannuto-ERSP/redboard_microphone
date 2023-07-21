@@ -11,31 +11,21 @@ BUFF_SIZE = 4096        # Number of 16-bit ints being sent over uart
 FILENAME = "out.raw"
 
 file = open(FILENAME, 'wb')
-buffer = ""
 
 ser = serial.Serial('/dev/ttyUSB0', baudrate=115200)  # open serial port
 
-# for i in range(2000):
-#     byte = ser.read(1)
-#     print(hex(byte[0]))
-#     file.write(byte)
+for i in range(BUFF_SIZE * 2):
+    byte = ser.read(1)
+    print(hex(byte[0]))
+    file.write(byte)
 
-byteArr = ser.read(4096 * 2)
-file.write(byteArr)
+# byteArr = ser.read(BUFF_SIZE * 2)
+# file.write(byteArr)
+
+
 # for i in byteArr:
 #     print(hex(i))
 #     file.write(str(i))
 
 ser.close()
 file.close()
-
-# for i in range(BUFF_SIZE):
-#     msb = ser.readline()        # I don't know if msb/lsb are swapped
-#     lsb = ser.readline()
-#     # short = msb << 8 + lsb
-#     # #print(short)
-#     # buffer += str(short) + '\n'
-#     buffer += msb + lsb
-
-# ser.close()
-# file.write(buffer)

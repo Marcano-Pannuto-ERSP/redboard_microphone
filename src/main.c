@@ -4,6 +4,11 @@
 // Copyright: Melody Gill, 2023
 // Copyright: Ambiq Micro, Inc., 2023
 
+/*
+ * Takes a constant recording from the microhpone
+ * and saves it as a raw file
+*/
+
 #include "am_mcu_apollo.h"
 #include "am_bsp.h"
 #include "am_util.h"

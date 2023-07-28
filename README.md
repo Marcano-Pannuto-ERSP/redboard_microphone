@@ -5,6 +5,16 @@ projects to record data from the redboard's microphone. After the Redboard
 is flashed, use the receive_data.py script to record the data from the
 redboard that is being sent over UART.
 
+## How to Run
+
+Connect the Redboard Artemis ATP to the server and flash `main.c` onto the board and then run `recieve_data.py`. This gives a `out.raw` file that can be imported into programs like Audacity to listen back to.
+
+### Audacity Configurations
+
+- Encoding: Signed 16-bit PCM
+- Byte order: Little-endian
+- Sample rate: 7813 Hz
+
 ## Dependencies
  - https://github.com/gemarcano/AmbiqSuiteSDK
  - https://github.com/gemarcano/asimple

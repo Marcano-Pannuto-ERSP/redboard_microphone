@@ -37,6 +37,8 @@ main(void)
 	uart_init(&uart, UART_INST0);
     uart_set_baud_rate(&uart, 921600);
 
+    am_util_stdio_printf("Hello World!\r\n");
+
     //
     // Turn on the PDM, set it up for our chosen recording settings, and start
     // the first DMA transaction.
